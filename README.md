@@ -11,8 +11,6 @@ This GitHub Copilot Extension sample shows:
 - How to contribute a chat participant to the GitHub Copilot Chat view.
 - How to use the Language Model API to request access to the Language Model (gpt-4o, gpt-3.5-turbo, gpt-4).
 
-![demo](./demo.png)
-
 Documentation can be found here:
 - https://code.visualstudio.com/api/extension-guides/chat
 - https://code.visualstudio.com/api/extension-guides/language-model
