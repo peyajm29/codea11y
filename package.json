@@ -1,0 +1,56 @@
+{
+	"name": "chat-sample",
+	"publisher": "vscode-samples",
+	"displayName": "CodeA11y",
+	"description": "Helps make your website compliant with WCAG.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-extension-samples"
+	},
+	"version": "0.1.0",
+	"engines": {
+		"vscode": "^1.92.0"
+	},
+	"categories": [
+		"AI",
+		"Chat"
+	],
+	"activationEvents": [],
+	"contributes": {
+		"chatParticipants": [
+			{
+				"id": "chat-sample.CodeA11y",
+				"fullName": "CodeA11y",
+				"name": "CodeA11y",
+				"description": "Ask how to edit your website.",
+				"isSticky": true,
+				"commands": [
+				]
+			}
+		],
+		"commands": [
+			{
+				"command": "CodeA11y.namesInEditor",
+				"title": "Use CodeA11y Names in Editor"
+			}
+		]
+	},
+	"main": "./out/extension.js",
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint \"src/**/*.ts\"",
+		"watch": "tsc -watch -p ./"
+	},
+	"dependencies": {
+		"@vscode/prompt-tsx": "^0.2.3-alpha"
+	},
+	"devDependencies": {
+		"@types/node": "^20.14.15",
+		"@types/vscode": "1.90.0",
+		"@typescript-eslint/eslint-plugin": "^7.14.0",
+		"@typescript-eslint/parser": "^7.14.0",
+		"eslint": "^8.26.0",
+		"typescript": "^5.5.2"
+	}
+}
