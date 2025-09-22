@@ -26,7 +26,30 @@
 				"isSticky": true,
 				"commands": []
 			}
-		]
+		],
+		"configuration": {
+			"title": "CodeA11y",
+			"properties": {
+				"codea11y.websiteUrl": {
+					"type": "string",
+					"default": "http://127.0.0.1:5500",
+					"description": "The URL of your website to analyze for accessibility issues. Works with any framework (React, Angular, vanilla JS, etc.)",
+					"examples": [
+						"http://localhost:3000",
+						"http://localhost:4200",
+						"http://localhost:8080",
+						"http://127.0.0.1:5500"
+					]
+				},
+				"codea11y.timeout": {
+					"type": "number",
+					"default": 10000,
+					"description": "Timeout in milliseconds for fetching website content",
+					"minimum": 1000,
+					"maximum": 30000
+				}
+			}
+		}
 	},
 	"main": "./out/extension.js",
 	"scripts": {
@@ -36,12 +59,10 @@
 		"watch": "tsc -watch -p ./"
 	},
 	"dependencies": {
-		"@axe-core/puppeteer": "^4.10.2",
 		"@types/jsdom": "^21.1.7",
 		"axe-core": "^4.10.3",
 		"axios": "^1.12.2",
-		"jsdom": "^27.0.0",
-		"puppeteer": "^24.22.0"
+		"jsdom": "^27.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.15",
