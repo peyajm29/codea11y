@@ -1,9 +1,13 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
+import axios from 'axios';
+// @ts-ignore
+import * as axe from 'axe-core';
+import { JSDOM } from 'jsdom';
 
 const CodeA11y_PARTICIPANT_ID = 'chat-sample.CodeA11y';
-const accessibilityLogPath = '/Users/peyamowar/GitHub/us-code/user-study-kubernetes/output.txt';
-const relevantPath = '/Users/peyamowar/GitHub/us-code/user-study-kubernetes/README.md';
+const LIVE_URL = 'http://127.0.0.1:5500/index.html';
 
 interface ICodeA11yChatResult extends vscode.ChatResult {
     metadata: {
@@ -118,22 +122,102 @@ function showToDoList() {
 
 // Get the accessibility log context
 async function getAccessibilityLogContext(): Promise<string> {
-    if (!accessibilityLogPath) {
-        return '';
+    try {
+        // Ensure we have a workspace folder
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            console.log('No workspace folder found');
+            return 'Error: No workspace folder found';
+        }
+
+        try {
+            // Fetch the HTML content from the live URL
+            const response = await axios.get(LIVE_URL);
+            const html = response.data;
+
+            // Create a virtual DOM using jsdom
+            const dom = new JSDOM(html);
+            const document = dom.window.document;
+
+            // Run axe-core analysis
+            const results = await axe.run(document);
+
+            // Format the results as a string
+            const violations = results.violations.map(violation => {
+                return `Error: ${violation.help}
+Impact: ${violation.impact}
+Description: ${violation.description}
+Elements: ${violation.nodes.map(node => node.html).join(', ')}
+`;
+            }).join('\n');
+
+            // Create logs directory if it doesn't exist
+            const logsDir = path.join(workspaceFolder.uri.fsPath, 'logs');
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir, { recursive: true });
+            }
+
+            // Save the results to a log file in the workspace
+            const logPath = path.join(logsDir, 'accessibility.log');
+            fs.writeFileSync(logPath, violations, 'utf-8');
+            console.log('Accessibility log saved to:', logPath);
+
+            return violations || 'No accessibility violations found';
+        } catch (error: any) {
+            const errorMessage = `Error running accessibility check: ${error.message || 'Unknown error'}`;
+            console.error(errorMessage);
+            
+            // Try to write error to log file
+            try {
+                const logsDir = path.join(workspaceFolder.uri.fsPath, 'logs');
+                if (!fs.existsSync(logsDir)) {
+                    fs.mkdirSync(logsDir, { recursive: true });
+                }
+                const logPath = path.join(logsDir, 'accessibility-error.log');
+                fs.writeFileSync(logPath, errorMessage, 'utf-8');
+                console.log('Error log saved to:', logPath);
+            } catch (writeError) {
+                console.error('Failed to write error log:', writeError);
+            }
+
+            return errorMessage;
+        }
+    } catch (error: any) {
+        console.error('Critical error:', error);
+        return 'Critical error occurred: ' + (error.message || 'Unknown error');
     }
-    const fileContent = fs.readFileSync(accessibilityLogPath, 'utf-8');
-    return fileContent;
 }
 
 async function getRelevantContext(): Promise<string> {
-    if (!relevantPath) {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
         return '';
     }
-    const fileContent = fs.readFileSync(relevantPath, 'utf-8');
-    return fileContent;
+    
+    const readmePath = path.join(workspaceFolder.uri.fsPath, 'README.md');
+    if (!fs.existsSync(readmePath)) {
+        return '';
+    }
+
+    try {
+        const fileContent = fs.readFileSync(readmePath, 'utf-8');
+        return fileContent;
+    } catch (error) {
+        console.error('Error reading README.md:', error);
+        return '';
+    }
 }
 
 export function activate(context: vscode.ExtensionContext) {
+    console.log('Activating CodeA11y extension...');
+
+    // Ensure we have a workspace
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+        console.log('No workspace folder found. Some features may be limited.');
+    } else {
+        console.log('Workspace folder:', vscode.workspace.workspaceFolders[0].uri.fsPath);
+    }
+
     const handler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<ICodeA11yChatResult> => {
         try {
             const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);

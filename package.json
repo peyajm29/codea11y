@@ -24,8 +24,7 @@
 				"name": "CodeA11y",
 				"description": "Ask how to edit your website.",
 				"isSticky": true,
-				"commands": [
-				]
+				"commands": []
 			}
 		]
 	},
@@ -37,6 +36,12 @@
 		"watch": "tsc -watch -p ./"
 	},
 	"dependencies": {
+		"@axe-core/puppeteer": "^4.10.2",
+		"@types/jsdom": "^21.1.7",
+		"axe-core": "^4.10.3",
+		"axios": "^1.12.2",
+		"jsdom": "^27.0.0",
+		"puppeteer": "^24.22.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.15",
