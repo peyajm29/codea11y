@@ -1,9 +1,6 @@
-import { renderPrompt } from '@vscode/prompt-tsx';
 import * as vscode from 'vscode';
-import { PlayPrompt } from './play';
 import * as fs from 'fs';
 
-const CodeA11y_NAMES_COMMAND_ID = 'CodeA11y.namesInEditor';
 const CodeA11y_PARTICIPANT_ID = 'chat-sample.CodeA11y';
 const accessibilityLogPath = '/Users/peyamowar/GitHub/us-code/user-study-kubernetes/output.txt';
 const relevantPath = '/Users/peyamowar/GitHub/us-code/user-study-kubernetes/README.md';
@@ -236,61 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }));
 
-    context.subscriptions.push(
-        CodeA11y,
-        // Register the command handler for the /meow followup
-        vscode.commands.registerTextEditorCommand(CodeA11y_NAMES_COMMAND_ID, async (textEditor: vscode.TextEditor) => {
-            const text = textEditor.document.getText();
-
-            let chatResponse: vscode.LanguageModelChatResponse | undefined;
-            try {
-                const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
-                if (!model) {
-                    console.log('Model not found. Please make sure the GitHub Copilot Chat extension is installed and enabled.');
-                    return;
-                }
-
-                const messages = [
-                    vscode.LanguageModelChatMessage.User(``),
-                    vscode.LanguageModelChatMessage.User(text)
-                ];
-                chatResponse = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
-
-            } catch (err) {
-                if (err instanceof vscode.LanguageModelError) {
-                    console.log(err.message, err.code, err.cause);
-                } else {
-                    throw err;
-                }
-                return;
-            }
-
-            // Clear the editor content before inserting new content
-            await textEditor.edit(edit => {
-                const start = new vscode.Position(0, 0);
-                const end = new vscode.Position(textEditor.document.lineCount - 1, textEditor.document.lineAt(textEditor.document.lineCount - 1).text.length);
-                edit.delete(new vscode.Range(start, end));
-            });
-
-            // Stream the code into the editor as it is coming in from the Language Model
-            try {
-                for await (const fragment of chatResponse.text) {
-                    await textEditor.edit(edit => {
-                        const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
-                        const position = new vscode.Position(lastLine.lineNumber, lastLine.text.length);
-                        edit.insert(position, fragment);
-                    });
-                }
-            } catch (err) {
-                // async response stream may fail, e.g network interruption or server side error
-                await textEditor.edit(edit => {
-                    const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
-                    const position = new vscode.Position(lastLine.lineNumber, lastLine.text.length);
-                    edit.insert(position, (<Error>err).message);
-                });
-            }
-        }),
-    );
+    context.subscriptions.push(CodeA11y);
 }
 
 function handleError(logger: vscode.TelemetryLogger, err: any, stream: vscode.ChatResponseStream): void {

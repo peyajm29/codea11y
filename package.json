@@ -27,12 +27,6 @@
 				"commands": [
 				]
 			}
-		],
-		"commands": [
-			{
-				"command": "CodeA11y.namesInEditor",
-				"title": "Use CodeA11y Names in Editor"
-			}
 		]
 	},
 	"main": "./out/extension.js",
@@ -43,7 +37,6 @@
 		"watch": "tsc -watch -p ./"
 	},
 	"dependencies": {
-		"@vscode/prompt-tsx": "^0.2.3-alpha"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.15",
