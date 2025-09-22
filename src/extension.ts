@@ -211,59 +211,15 @@ async function getAccessibilityLogContext(): Promise<string> {
 
         console.log("Axe-core configured, running analysis...");
 
-        // Run axe-core analysis - try multiple methods for maximum compatibility
-        try {
-          // Method 1: Run with explicit document context
-          console.log("Trying Method 1: Document context");
-          results = await axe.run(document, {
-            // Configure axe-core options for comprehensive checking
-            runOnly: {
-              type: "tag",
-              values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
-            },
-          });
-          console.log("Method 1 succeeded");
-        } catch (contextError) {
-          const errorMessage =
-            contextError instanceof Error
-              ? contextError.message
-              : "Unknown error";
-          console.log(
-            "Direct context method failed, trying alternative approach:",
-            errorMessage
-          );
-
-          // Method 2: Run without explicit context (using globals)
-          try {
-            console.log("Trying Method 2: Global context");
-            results = await axe.run({
-              runOnly: {
-                type: "tag",
-                values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
-              },
-            });
-            console.log("Method 2 succeeded");
-          } catch (globalError) {
-            const globalErrorMessage =
-              globalError instanceof Error
-                ? globalError.message
-                : "Unknown error";
-            console.log(
-              "Global method failed, trying root element approach:",
-              globalErrorMessage
-            );
-
-            // Method 3: Run with document.documentElement as context
-            console.log("Trying Method 3: Root element context");
-            results = await axe.run(document.documentElement, {
-              runOnly: {
-                type: "tag",
-                values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
-              },
-            });
-            console.log("Method 3 succeeded");
-          }
-        }
+        // Run axe-core analysis with document.documentElement as context
+        console.log("Running axe-core with root element context");
+        results = await axe.run(document.documentElement, {
+          runOnly: {
+            type: "tag",
+            values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
+          },
+        });
+        console.log("Axe-core analysis completed successfully");
       } finally {
         // Always restore original globals
         if (originalWindow !== undefined) {
