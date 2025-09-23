@@ -22,19 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-const axios_1 = __importDefault(require("axios"));
-// @ts-ignore
-const axe = __importStar(require("axe-core"));
-const jsdom_1 = require("jsdom");
+const child_process = __importStar(require("child_process"));
+const util_1 = require("util");
 const CodeA11y_PARTICIPANT_ID = "chat-sample.CodeA11y";
 // Function to get the website URL from VS Code settings
 function getWebsiteUrl() {
@@ -105,28 +100,23 @@ function extractToDos(response) {
         toDoList.push(toDoItem);
     }
 }
-// display developer reminders / to-dos
 function showToDoList() {
     let counter = 1;
-    // list of error messages
     let error_messages = "Errors:\n";
     while (toDoList.length > 0) {
         const todoItem = toDoList.shift();
         if (todoItem) {
             if (todoItem.type === "error") {
                 vscode.window.showErrorMessage(todoItem?.message);
-                // vscode.window.showErrorMessage(todoItem?.message!, { modal: true });
                 error_messages += counter.toString() + ". " + todoItem?.message + "\n";
                 counter++;
             }
             else if (todoItem.type === "warning") {
                 vscode.window.showWarningMessage(todoItem?.message);
-                // vscode.window.showWarningMessage(todoItem?.message!, { modal: true });
                 error_messages += counter.toString() + ". " + todoItem?.message + "\n";
                 counter++;
             }
             else {
-                // vscode.window.showInformationMessage(todoItem?.message!, { modal: true });
                 vscode.window.showInformationMessage(todoItem?.message);
                 error_messages += counter.toString() + ". " + todoItem?.message + "\n";
                 counter++;
@@ -138,152 +128,57 @@ function showToDoList() {
 // Get the accessibility log context
 async function getAccessibilityLogContext() {
     try {
-        // Ensure we have a workspace folder
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
             console.log("No workspace folder found");
             return "Error: No workspace folder found";
         }
         try {
-            // Get the website URL from configuration
             const websiteUrl = getWebsiteUrl();
             const timeout = getTimeout();
-            // Fetch the HTML content from the live URL with better error handling
-            const response = await axios_1.default.get(websiteUrl, {
-                timeout: timeout,
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (compatible; CodeA11y-Accessibility-Checker/1.0)",
-                },
-            });
-            const html = response.data;
-            // Validate that we got HTML content
-            if (!html || typeof html !== "string") {
-                throw new Error("Invalid HTML content received from URL");
-            }
-            // Create a virtual DOM using jsdom with enhanced configuration for SPA frameworks
-            const dom = new jsdom_1.JSDOM(html, {
-                url: websiteUrl,
-                pretendToBeVisual: true,
-                resources: "usable",
-                runScripts: "outside-only", // Allow external scripts but not inline scripts for security
-                beforeParse(window) {
-                    // Add common global objects that frameworks might expect
-                    window.fetch =
-                        global.fetch ||
-                            (() => Promise.reject(new Error("Fetch not available")));
-                },
-            });
-            // Get window and document from JSDOM
-            const { window } = dom;
-            const { document } = window;
-            // Validate that we have a proper document
-            if (!document || !document.documentElement) {
-                throw new Error("Failed to create valid DOM from HTML content");
-            }
-            console.log(`DOM created successfully. Document has ${document.querySelectorAll("*").length} elements`);
-            console.log(`Title: "${document.title}"`);
-            console.log(`Body exists: ${!!document.body}`);
-            // Configure axe-core with the JSDOM context
-            let results;
-            // Store original globals to restore later
-            const originalWindow = global.window;
-            const originalDocument = global.document;
-            try {
-                // Set global window and document for axe-core
-                global.window = window;
-                global.document = document;
-                // Also ensure axe can access these through the window object
-                window.axe = axe;
-                // Initialize axe-core with the current context
-                axe.configure({
-                // Ensure axe-core uses the correct document context
-                });
-                console.log("Axe-core configured, running analysis...");
-                // Run axe-core analysis with document.documentElement as context
-                console.log("Running axe-core with root element context");
-                results = await axe.run(document.documentElement, {
-                    runOnly: {
-                        type: "tag",
-                        values: ["wcag2a", "wcag2aa", "wcag21aa", "best-practice"],
-                    },
-                });
-                console.log("Axe-core analysis completed successfully");
-            }
-            finally {
-                // Always restore original globals
-                if (originalWindow !== undefined) {
-                    global.window = originalWindow;
-                }
-                else {
-                    delete global.window;
-                }
-                if (originalDocument !== undefined) {
-                    global.document = originalDocument;
-                }
-                else {
-                    delete global.document;
-                }
-            }
-            // Format the results as a string with metadata
-            const logHeader = `CodeA11y Accessibility Analysis Report
-Generated: ${new Date().toISOString()}
-URL: ${websiteUrl}
-Total Violations: ${results.violations.length}
-Total Passes: ${results.passes.length}
-Total Incomplete: ${results.incomplete.length}
-Total Inapplicable: ${results.inapplicable.length}
-Axe Version: ${results.testEngine?.version || "Unknown"}
-
-========================================
-VIOLATIONS:
-========================================
-
-`;
-            const violations = results.violations
-                .map((violation, index) => {
-                return `${index + 1}. ${violation.help}
-   Impact: ${violation.impact}
-   Description: ${violation.description}
-   Help URL: ${violation.helpUrl}
-   Elements Affected: ${violation.nodes.length}
-   Elements: ${violation.nodes.map((node) => node.html).join(", ")}
-   
-`;
-            })
-                .join("");
-            const logContent = logHeader + (violations || "No accessibility violations found");
-            // Create logs directory if it doesn't exist
-            const logsDir = path.join(workspaceFolder.uri.fsPath, "logs");
+            console.log(`Running axe-cli analysis on: ${websiteUrl}`);
+            const exec = (0, util_1.promisify)(child_process.exec);
+            const axeCliPath = path.join(__dirname, "..", "node_modules", ".bin", "axe");
+            const logsDir = path.join(workspaceFolder.uri.fsPath, "codea11y-logs");
             if (!fs.existsSync(logsDir)) {
                 fs.mkdirSync(logsDir, { recursive: true });
             }
-            // Use fixed filename - will replace existing file
-            const logPath = path.join(logsDir, "accessibility.log");
-            fs.writeFileSync(logPath, logContent, "utf-8");
-            console.log("Accessibility log updated at:", logPath);
-            // Show a notification to the user
-            vscode.window.showInformationMessage("📝 Accessibility log updated: accessibility.log");
+            const axeResultsPath = path.join(logsDir, "axe-results.json");
+            const axeCommand = `"${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --verbose`;
+            console.log(`Executing: ${axeCommand}`);
+            const { stdout, stderr } = await exec(axeCommand, {
+                timeout: timeout + 5000, // Give extra time for the command itself
+                maxBuffer: 1024 * 1024 * 10, // 10MB buffer for large results
+            });
+            if (stderr && stderr.trim()) {
+                console.warn("Axe-cli stderr:", stderr);
+            }
+            // Read and parse the JSON results file
+            let results;
+            try {
+                if (!fs.existsSync(axeResultsPath)) {
+                    throw new Error(`Axe results file not found: ${axeResultsPath}`);
+                }
+                const resultsFileContent = fs.readFileSync(axeResultsPath, "utf-8");
+                if (!resultsFileContent.trim()) {
+                    throw new Error("Axe results file is empty");
+                }
+                results = JSON.parse(resultsFileContent);
+            }
+            catch (parseError) {
+                console.error("Failed to read or parse axe-results.json:", parseError);
+                throw new Error(`Failed to parse axe-results.json: ${parseError}`);
+            }
+            // Return the raw JSON results
+            const logContent = JSON.stringify(results, null, 2);
             return logContent;
         }
         catch (error) {
-            const errorMessage = `Error running accessibility check: ${error.message || "Unknown error"}`;
+            const errorMessage = `Error running axe-cli accessibility check: ${error.message || "Unknown error"}`;
             console.error(errorMessage);
-            // Try to write error to log file
-            try {
-                const logsDir = path.join(workspaceFolder.uri.fsPath, "logs");
-                if (!fs.existsSync(logsDir)) {
-                    fs.mkdirSync(logsDir, { recursive: true });
-                }
-                // Use fixed filename for error log - will replace existing file
-                const logPath = path.join(logsDir, "accessibility-error.log");
-                fs.writeFileSync(logPath, errorMessage, "utf-8");
-                console.log("Error log updated at:", logPath);
-                // Show notification for error log
-                vscode.window.showWarningMessage("⚠️ Accessibility check error logged: accessibility-error.log");
-            }
-            catch (writeError) {
-                console.error("Failed to write error log:", writeError);
-            }
+            console.error("Full error:", error);
+            // Show notification for error
+            vscode.window.showWarningMessage("⚠️ Axe-cli accessibility check failed: " + error.message);
             return errorMessage;
         }
     }

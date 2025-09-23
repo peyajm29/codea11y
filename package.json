@@ -59,10 +59,8 @@
 		"watch": "tsc -watch -p ./"
 	},
 	"dependencies": {
-		"@types/jsdom": "^21.1.7",
-		"axe-core": "^4.10.3",
-		"axios": "^1.12.2",
-		"jsdom": "^27.0.0"
+		"@axe-core/cli": "^4.10.2",
+		"axios": "^1.12.2"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.15",
