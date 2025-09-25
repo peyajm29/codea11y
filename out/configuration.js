@@ -23,23 +23,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = activate;
-exports.deactivate = deactivate;
+exports.getWebsiteUrl = getWebsiteUrl;
+exports.getTimeout = getTimeout;
 const vscode = __importStar(require("vscode"));
-const chatHandler_1 = require("./chatHandler");
-const constants_1 = require("./constants");
-function activate(context) {
-    console.log("Activating CodeA11y extension...");
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-        console.log("No workspace folder found. Some features may be limited.");
-    }
-    const chatHandler = new chatHandler_1.ChatHandler();
-    const handler = async (request, context, stream, token) => {
-        return await chatHandler.handleChatRequest(request, context, stream, token);
-    };
-    const CodeA11y = vscode.chat.createChatParticipant(constants_1.CodeA11y_PARTICIPANT_ID, handler);
-    CodeA11y.iconPath = vscode.Uri.joinPath(context.extensionUri, "cute_robot_icon.svg");
-    context.subscriptions.push(CodeA11y);
+/**
+ * Gets the website URL from VS Code settings
+ */
+function getWebsiteUrl() {
+    const config = vscode.workspace.getConfiguration("codea11y");
+    return config.get("websiteUrl", "http://127.0.0.1:5500");
 }
-function deactivate() { }
-//# sourceMappingURL=extension.js.map
+/**
+ * Gets the timeout value from VS Code settings
+ */
+function getTimeout() {
+    const config = vscode.workspace.getConfiguration("codea11y");
+    return config.get("timeout", 10000);
+}
+//# sourceMappingURL=configuration.js.map

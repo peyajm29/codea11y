@@ -23,23 +23,29 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = activate;
-exports.deactivate = deactivate;
-const vscode = __importStar(require("vscode"));
-const chatHandler_1 = require("./chatHandler");
-const constants_1 = require("./constants");
-function activate(context) {
-    console.log("Activating CodeA11y extension...");
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-        console.log("No workspace folder found. Some features may be limited.");
+exports.getRelevantContext = getRelevantContext;
+const fs = __importStar(require("fs"));
+const path = __importStar(require("path"));
+/**
+ * Reads the README.md file from the workspace if it exists
+ */
+async function getRelevantContext() {
+    const vscode = await import("vscode");
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        return "";
     }
-    const chatHandler = new chatHandler_1.ChatHandler();
-    const handler = async (request, context, stream, token) => {
-        return await chatHandler.handleChatRequest(request, context, stream, token);
-    };
-    const CodeA11y = vscode.chat.createChatParticipant(constants_1.CodeA11y_PARTICIPANT_ID, handler);
-    CodeA11y.iconPath = vscode.Uri.joinPath(context.extensionUri, "cute_robot_icon.svg");
-    context.subscriptions.push(CodeA11y);
+    const readmePath = path.join(workspaceFolder.uri.fsPath, "README.md");
+    if (!fs.existsSync(readmePath)) {
+        return "";
+    }
+    try {
+        const fileContent = fs.readFileSync(readmePath, "utf-8");
+        return fileContent;
+    }
+    catch (error) {
+        console.error("Error reading README.md:", error);
+        return "";
+    }
 }
-function deactivate() { }
-//# sourceMappingURL=extension.js.map
+//# sourceMappingURL=utils.js.map

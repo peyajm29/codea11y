@@ -1,11 +1,11 @@
 {
-	"name": "chat-sample",
-	"publisher": "vscode-samples",
+	"name": "codea11y",
+	"publisher": "codea11y",
 	"displayName": "CodeA11y",
 	"description": "Helps make your website compliant with WCAG.",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
+		"url": "https://github.com/peyajm29/codea11y"
 	},
 	"version": "0.1.0",
 	"engines": {
@@ -19,7 +19,7 @@
 	"contributes": {
 		"chatParticipants": [
 			{
-				"id": "chat-sample.CodeA11y",
+				"id": "codea11y.CodeA11y",
 				"fullName": "CodeA11y",
 				"name": "CodeA11y",
 				"description": "Ask how to edit your website.",
