@@ -1,24 +1,47 @@
-# Chat Example
+# CodeA11y - Accessibility GitHub Copilot Extension
 
-Visual Studio Code's Copilot Chat architecture enables extension authors to integrate with the GitHub Copilot Chat experience. A chat extension is a VS Code extension that uses the Chat extension API by contributing a Chat participant. Chat participants are domain experts that can answer user queries within a specific domain.
+CodeA11y is a GitHub Copilot extension that helps developers write accessible code that conforms to WCAG 2.1 Level A and AA success criteria.
 
-The Language Model API enables you to use the Language Model and integrate AI-powered features and natural language processing in your Visual Studio Code extension.
+## Features
 
-When an extension uses the Chat or the Language Model API, we call it a GitHub Copilot Extension, since GitHub Copilot is the provider of the Chat and the Language Model experience.
+- 🤖 AI-powered accessibility guidance through GitHub Copilot Chat
+- 🔍 Automated accessibility analysis using axe-core
+- 📋 TODO management for accessibility fixes
+- 🎯 Context-aware suggestions based on your current code
 
-This GitHub Copilot Extension sample shows:
+## Installation
 
-- How to contribute a chat participant to the GitHub Copilot Chat view.
-- How to use the Language Model API to request access to the Language Model (gpt-4o, gpt-3.5-turbo, gpt-4).
+1. Install the extension from the VS Code marketplace
+2. Ensure you have GitHub Copilot enabled
+3. Configure your website URL in settings
 
-Documentation can be found here:
-- https://code.visualstudio.com/api/extension-guides/chat
-- https://code.visualstudio.com/api/extension-guides/language-model
+## Configuration
 
-## Running the Sample
+- `codea11y.websiteUrl`: The URL of your website to analyze (default: http://127.0.0.1:5500)
+- `codea11y.timeout`: Timeout for website analysis in milliseconds (default: 10000)
 
-- Run `npm install` in terminal to install dependencies
-- Run the `Run Extension` target in the Debug View. This will:
-	- Start a task `npm: watch` to compile the code
-	- Run the extension in a new VS Code window
-	- You will see the @cat chat participant show in the GitHub Copilot Chat view
+## Usage
+
+1. Open the GitHub Copilot Chat panel
+2. Use `@CodeA11y` to interact with the accessibility assistant
+3. Ask questions about making your code more accessible
+4. Get real-time analysis of your website's accessibility issues
+
+## Development
+
+- Run `npm install` to install dependencies
+- Run `npm run compile` to build the extension
+- Run `npm run watch` for development with auto-compilation
+- Run `npm run lint` to check code quality
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+## License
+
+[Add your license here]
