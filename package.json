@@ -1,0 +1,73 @@
+{
+	"name": "codea11y",
+	"publisher": "codea11y",
+	"displayName": "CodeA11y",
+	"description": "Helps make your website compliant with WCAG.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/peyajm29/codea11y"
+	},
+	"version": "0.1.0",
+	"engines": {
+		"vscode": "^1.92.0"
+	},
+	"categories": [
+		"AI",
+		"Chat"
+	],
+	"activationEvents": [],
+	"contributes": {
+		"chatParticipants": [
+			{
+				"id": "codea11y.CodeA11y",
+				"fullName": "CodeA11y",
+				"name": "CodeA11y",
+				"description": "Ask how to edit your website.",
+				"isSticky": true,
+				"commands": []
+			}
+		],
+		"configuration": {
+			"title": "CodeA11y",
+			"properties": {
+				"codea11y.websiteUrl": {
+					"type": "string",
+					"default": "http://127.0.0.1:5500",
+					"description": "The URL of your website to analyze for accessibility issues. Works with any framework (React, Angular, vanilla JS, etc.)",
+					"examples": [
+						"http://localhost:3000",
+						"http://localhost:4200",
+						"http://localhost:8080",
+						"http://127.0.0.1:5500"
+					]
+				},
+				"codea11y.timeout": {
+					"type": "number",
+					"default": 10000,
+					"description": "Timeout in milliseconds for fetching website content",
+					"minimum": 1000,
+					"maximum": 30000
+				}
+			}
+		}
+	},
+	"main": "./out/extension.js",
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint \"src/**/*.ts\"",
+		"watch": "tsc -watch -p ./"
+	},
+	"dependencies": {
+		"@axe-core/cli": "^4.10.2",
+		"axios": "^1.12.2"
+	},
+	"devDependencies": {
+		"@types/node": "^20.14.15",
+		"@types/vscode": "1.90.0",
+		"@typescript-eslint/eslint-plugin": "^7.14.0",
+		"@typescript-eslint/parser": "^7.14.0",
+		"eslint": "^8.26.0",
+		"typescript": "^5.5.2"
+	}
+}
