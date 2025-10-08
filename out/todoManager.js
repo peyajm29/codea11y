@@ -62,25 +62,19 @@ class TodoManager {
      */
     showToDoList() {
         let counter = 1;
-        let error_messages = "Errors:\n";
         while (this.toDoList.length > 0) {
             const todoItem = this.toDoList.shift();
             if (todoItem) {
                 if (todoItem.type === "error") {
                     vscode.window.showErrorMessage(todoItem.message);
-                    error_messages += counter.toString() + ". " + todoItem.message + "\n";
-                    counter++;
                 }
                 else if (todoItem.type === "warning") {
                     vscode.window.showWarningMessage(todoItem.message);
-                    error_messages += counter.toString() + ". " + todoItem.message + "\n";
-                    counter++;
                 }
                 else {
                     vscode.window.showInformationMessage(todoItem.message);
-                    error_messages += counter.toString() + ". " + todoItem.message + "\n";
-                    counter++;
                 }
+                counter++;
             }
         }
     }
