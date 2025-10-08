@@ -46,16 +46,39 @@ class AccessibilityAnalyzer {
                 const timeout = (0, configuration_1.getTimeout)();
                 console.log(`Running axe-cli analysis on: ${websiteUrl}`);
                 const exec = (0, util_1.promisify)(child_process.exec);
-                const axeCliPath = path.join(__dirname, "..", "node_modules", ".bin", "axe");
+                let axeCliPath;
+                try {
+                    const axePkgJsonPath = require.resolve("@axe-core/cli/package.json");
+                    const axePkgJson = JSON.parse(fs.readFileSync(axePkgJsonPath, "utf8"));
+                    const axePkgDir = path.dirname(axePkgJsonPath);
+                    const binField = axePkgJson.bin;
+                    let binRel;
+                    if (typeof binField === "string") {
+                        binRel = binField;
+                    }
+                    else if (typeof binField === "object" && binField !== null) {
+                        binRel = binField["axe"] || binField["cli"] || binField[Object.keys(binField)[0]];
+                    }
+                    if (binRel) {
+                        axeCliPath = path.join(axePkgDir, binRel);
+                    }
+                }
+                catch (resolveErr) {
+                    console.warn("Could not resolve @axe-core/cli package.json:", resolveErr?.message || resolveErr);
+                }
+                if (!axeCliPath) {
+                    axeCliPath = path.join(__dirname, "..", "node_modules", ".bin", "axe");
+                }
                 const logsDir = path.join(workspaceFolder.uri.fsPath, ".codea11y-logs");
                 if (!fs.existsSync(logsDir)) {
                     fs.mkdirSync(logsDir, { recursive: true });
                 }
                 const axeResultsPath = path.join(logsDir, "axe-results.json");
-                const axeCommand = `"${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --verbose`;
+                const nodeExec = process.execPath;
+                const axeCommand = `"${nodeExec}" "${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --verbose`;
                 console.log(`Executing: ${axeCommand}`);
                 const { stderr } = await exec(axeCommand, {
-                    timeout: timeout + 5000, // Give extra time for the command itself
+                    timeout: timeout + 5000,
                     maxBuffer: 1024 * 1024 * 10, // 10MB buffer for large results
                 });
                 if (stderr && stderr.trim()) {
