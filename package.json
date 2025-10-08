@@ -2,6 +2,7 @@
 	"name": "codea11y",
 	"publisher": "codea11y",
 	"displayName": "CodeA11y",
+	"icon": "./icon.png",
 	"description": "Helps make your website compliant with WCAG.",
 	"repository": {
 		"type": "git",
