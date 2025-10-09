@@ -1,43 +1,3 @@
-# CodeA11y - Accessibility GitHub Copilot Extension
-
-CodeA11y is a GitHub Copilot extension that helps developers write accessible code that conforms to WCAG 2.1 Level A and AA success criteria.
-
-## Features
-
-- 🤖 AI-powered accessibility guidance through GitHub Copilot Chat
-- 🔍 Automated accessibility analysis using axe-core
-- 📋 TODO management for accessibility fixes
-- 🎯 Context-aware suggestions based on your current code
-
-## Installation
-
-1. Install the extension from the VS Code marketplace
-2. Ensure you have GitHub Copilot enabled
-3. Configure your website URL in settings
-
-## Configuration
-
-- `codea11y.websiteUrl`: The URL of your website to analyze (default: http://127.0.0.1:5500)
-- `codea11y.timeout`: Timeout for website analysis in milliseconds (default: 10000)
-
-## Usage
-
-1. Open the GitHub Copilot Chat panel
-2. Use `@CodeA11y` to interact with the accessibility assistant
-3. Ask questions about making your code more accessible
-4. Get real-time analysis of your website's accessibility issues
-
-## Development
-
-- Run `npm install` to install dependencies
-- Run `npm run compile` to build the extension
-- Run `npm run watch` for development with auto-compilation
-- Run `npm run lint` to check code quality
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
 # CodeA11y
 
 CodeA11y is a Visual Studio Code extension that integrates with GitHub Copilot to help developers identify and fix accessibility issues in web projects. It combines AI-powered guidance with automated analysis (axe-core) and a simple TODO tracker for accessibility work.
@@ -105,7 +65,6 @@ Contributions are welcome. A healthy contribution flow:
 Please follow the repository coding style and commit message guidelinest. Using conventional commits (feat:, fix:, chore:, etc.) makes changelog automation easier.
 
 ## License
-
 
 
 ## Further reading
