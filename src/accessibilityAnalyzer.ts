@@ -10,12 +10,12 @@ export class AccessibilityAnalyzer {
    * Filters accessibility results to only include violations (the actual problems)
    * This dramatically reduces context size by removing passes, incomplete, and inapplicable tests
    */
-  private filterAndTruncateResults(results: any): any {
+  private filterAndTruncateResults(maxLogContextSize: number, results: any): any {
     if (!results) {
       return results;
     }
 
-    const MAX_CONTEXT_SIZE = 15000; // Maximum characters for the entire log context
+    const MAX_CONTEXT_SIZE = maxLogContextSize; // Maximum characters for the entire log context
 
     // Step 1: Create a violations-only version
     const violationsOnly: any = {
@@ -107,7 +107,9 @@ export class AccessibilityAnalyzer {
   /**
    * Gets the accessibility log context by running axe-cli analysis
    */
-  public async getAccessibilityLogContext(): Promise<string> {
+  public async getAccessibilityLogContext(
+    maxLogContextSize: number
+  ): Promise<string> {
     try {
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       if (!workspaceFolder) {
@@ -189,7 +191,7 @@ export class AccessibilityAnalyzer {
         }
         
         // Filter and truncate results to fit within context limits
-        const filteredResults = this.filterAndTruncateResults(actualResults);
+        const filteredResults = this.filterAndTruncateResults(maxLogContextSize, actualResults);
         
         return JSON.stringify(filteredResults, null, 2);
       } catch (error: any) {
