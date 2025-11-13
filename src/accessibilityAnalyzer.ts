@@ -4,6 +4,7 @@ import * as path from "path";
 import * as child_process from "child_process";
 import { promisify } from "util";
 import { getWebsiteUrl, getTimeout } from "./configuration";
+import { ChromeDriverManager } from "./chromedriverManager";
 
 export class AccessibilityAnalyzer {
   /**
@@ -152,8 +153,15 @@ export class AccessibilityAnalyzer {
 
         const axeResultsPath = path.join(logsDir, "axe-results.json");
 
-  const nodeExec = process.execPath;
-  const axeCommand = `"${nodeExec}" "${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --verbose`;
+        // Get the ChromeDriver path (will auto-download if needed)
+        const chromedriverPath = await ChromeDriverManager.getInstance().getChromedriverPath();
+        
+        if (!chromedriverPath) {
+          throw new Error("Failed to download or locate ChromeDriver. Please check your internet connection and try again.");
+        }
+
+        const nodeExec = process.execPath;
+        const axeCommand = `"${nodeExec}" "${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --chromedriver-path "${chromedriverPath}" --verbose`;
 
         const { stderr } = await exec(axeCommand, {
           timeout: timeout + 5000, 

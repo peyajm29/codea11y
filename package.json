@@ -61,7 +61,8 @@
 	},
 	"dependencies": {
 		"@axe-core/cli": "^4.10.2",
-		"axios": "^1.12.2"
+		"axios": "^1.12.2",
+		"browser-driver-manager": "^2.0.1"
 	},
 	"devDependencies": {
 		"@types/node": "^20.14.15",
