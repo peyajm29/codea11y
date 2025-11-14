@@ -85,6 +85,9 @@ export class ChatHandler {
     try {
       const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
       if (model) {
+
+        const maxLogContextSize = model.maxInputTokens * 4/5; // Use 80% of the model's max input tokens for the log context to leave room for the prompt and response
+
         // Part 1 of the chat - Initial accessibility advice
         const active_file_context = this.getActiveFileContext();
         const relevantContext = await getRelevantContext();
@@ -109,7 +112,7 @@ export class ChatHandler {
         stream.markdown(
           "\n 🔍 *Analyzing your website for accessibility issues...*\n\n"
         );
-        const accessibilityLogContext = await this.accessibilityAnalyzer.getAccessibilityLogContext();
+        const accessibilityLogContext = await this.accessibilityAnalyzer.getAccessibilityLogContext(maxLogContextSize);
 
         // Part 2 of the chat - Accessibility error analysis
         const a11yerrormessages = [
