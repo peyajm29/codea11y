@@ -30,6 +30,7 @@ const path = __importStar(require("path"));
 const child_process = __importStar(require("child_process"));
 const util_1 = require("util");
 const configuration_1 = require("./configuration");
+const chromedriverManager_1 = require("./chromedriverManager");
 class AccessibilityAnalyzer {
     /**
      * Filters accessibility results to only include violations (the actual problems)
@@ -155,8 +156,13 @@ class AccessibilityAnalyzer {
                     fs.mkdirSync(logsDir, { recursive: true });
                 }
                 const axeResultsPath = path.join(logsDir, "axe-results.json");
+                // Get the ChromeDriver path (will auto-download if needed)
+                const chromedriverPath = await chromedriverManager_1.ChromeDriverManager.getInstance().getChromedriverPath();
+                if (!chromedriverPath) {
+                    throw new Error("Failed to download or locate ChromeDriver. Please check your internet connection and try again.");
+                }
                 const nodeExec = process.execPath;
-                const axeCommand = `"${nodeExec}" "${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --verbose`;
+                const axeCommand = `"${nodeExec}" "${axeCliPath}" "${websiteUrl}" --tags wcag2a,wcag2aa,wcag21aa,best-practice --save "${axeResultsPath}" --chromedriver-path "${chromedriverPath}" --verbose`;
                 const { stderr } = await exec(axeCommand, {
                     timeout: timeout + 5000,
                     maxBuffer: 1024 * 1024 * 10, // 10MB buffer for large results
