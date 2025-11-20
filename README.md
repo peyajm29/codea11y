@@ -2,6 +2,8 @@
 
 CodeA11y is a Visual Studio Code extension that integrates with GitHub Copilot to help developers identify and fix accessibility issues in web projects. It combines AI-powered guidance with automated analysis (axe-core) and a simple TODO tracker for accessibility work.
 
+Use it here: https://marketplace.visualstudio.com/items?itemName=codea11y.codea11y
+
 Key goals:
 - Surface WCAG 2.1 (Level A / AA) relevant issues while you work
 - Provide actionable, context-aware suggestions through Copilot Chat
